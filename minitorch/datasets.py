@@ -5,6 +5,7 @@ from typing import List, Tuple
 
 
 def make_pts(N: int) -> List[Tuple[float, float]]:
+    """Generate N random points in the unit square."""
     X = []
     for i in range(N):
         x_1 = random.random()
@@ -21,6 +22,17 @@ class Graph:
 
 
 def simple(N: int) -> Graph:
+    """A simple dataset where the label is 1 if x_1 < 0.5 and 0 otherwise.
+
+    Args:
+    ----
+        N: Number of points to generate.
+
+    Returns:
+    -------
+        Graph: A graph object with N points.
+
+    """
     X = make_pts(N)
     y = []
     for x_1, x_2 in X:
@@ -30,6 +42,17 @@ def simple(N: int) -> Graph:
 
 
 def diag(N: int) -> Graph:
+    """A dataset where the binary classification boundary is a diagonal line.
+
+    Args:
+    ----
+        N: Number of points to generate.
+
+    Returns:
+    -------
+        Graph: A graph object with N points.
+
+    """
     X = make_pts(N)
     y = []
     for x_1, x_2 in X:
@@ -39,6 +62,17 @@ def diag(N: int) -> Graph:
 
 
 def split(N: int) -> Graph:
+    """A dataset where the binary classification boundaries are two vertical lines.
+
+    Args:
+    ----
+        N: Number of points to generate.
+
+    Returns:
+    -------
+        Graph: A graph object with N points.
+
+    """
     X = make_pts(N)
     y = []
     for x_1, x_2 in X:
@@ -48,29 +82,65 @@ def split(N: int) -> Graph:
 
 
 def xor(N: int) -> Graph:
+    """A dataset where the binary classification boundaries are an X shape.
+
+    Args:
+    ----
+        N: Number of points to generate.
+
+    Returns:
+    -------
+        Graph: A graph object with N points.
+
+    """
     X = make_pts(N)
     y = []
     for x_1, x_2 in X:
-        y1 = 1 if ((x_1 < 0.5 and x_2 > 0.5) or (x_1 > 0.5 and x_2 < 0.5)) else 0
+        y1 = 1 if x_1 < 0.5 and x_2 > 0.5 or x_1 > 0.5 and x_2 < 0.5 else 0
         y.append(y1)
     return Graph(N, X, y)
 
 
 def circle(N: int) -> Graph:
+    """A dataset where the binary classification boundary is in the shape of a circle.
+
+    Args:
+    ----
+        N: Number of points to generate.
+
+    Returns:
+    -------
+        Graph: A graph object with N points.
+
+    """
     X = make_pts(N)
     y = []
     for x_1, x_2 in X:
-        x1, x2 = (x_1 - 0.5, x_2 - 0.5)
+        x1, x2 = x_1 - 0.5, x_2 - 0.5
         y1 = 1 if x1 * x1 + x2 * x2 > 0.1 else 0
         y.append(y1)
     return Graph(N, X, y)
 
 
 def spiral(N: int) -> Graph:
+    """A dataset where the binary classification boundary is in the shape of a spiral.
+
+    Args:
+    ----
+        N: Number of points to generate.
+
+    Returns:
+    -------
+        Graph: A graph object with N points.
+
+    """
+
     def x(t: float) -> float:
+        """Oscillate x, parametric representation."""
         return t * math.cos(t) / 20.0
 
     def y(t: float) -> float:
+        """Oscillate y, parametric representation."""
         return t * math.sin(t) / 20.0
 
     X = [
