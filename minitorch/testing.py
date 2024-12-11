@@ -11,7 +11,7 @@ class MathTest(Generic[A]):
     @staticmethod
     def neg(a: A) -> A:
         "Negate the argument"
-        return -a
+        return -1 * a
 
     @staticmethod
     def addConstant(a: A) -> A:

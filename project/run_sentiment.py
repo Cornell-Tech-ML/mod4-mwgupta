@@ -35,7 +35,7 @@ class Conv1d(minitorch.Module):
 
     def forward(self, input):
         # TODO: Implement for Task 4.5.
-        raise NotImplementedError("Need to implement for Task 4.5")
+        return minitorch.fast_conv.conv1d(input, self.weights.value) + self.bias.value
 
 
 class CNNSentimentKim(minitorch.Module):
@@ -62,15 +62,51 @@ class CNNSentimentKim(minitorch.Module):
         super().__init__()
         self.feature_map_size = feature_map_size
         # TODO: Implement for Task 4.5.
-        raise NotImplementedError("Need to implement for Task 4.5")
+        self.feature_map_size = feature_map_size
+        self.embedding_size = embedding_size
+        self.filter_sizes = filter_sizes
+        self.dropout_rate = dropout
+
+        # 1D conv layers
+        self.conv_layers = [
+            Conv1d(
+                in_channels=embedding_size,
+                out_channels=feature_map_size,
+                kernel_width=filter_size,
+            )
+            for filter_size in filter_sizes
+        ]
+
+        self.fc = Linear(feature_map_size, 1) # 1 class (binary label)
 
     def forward(self, embeddings):
         """
         embeddings tensor: [batch x sentence length x embedding dim]
         """
         # TODO: Implement for Task 4.5.
-        raise NotImplementedError("Need to implement for Task 4.5")
+        # Permute dimensions for Conv1d [batch x in_channels x sentence_length]
+        conv_input = embeddings.permute(0, 2, 1)
 
+        conv_results = []
+        for conv_layer in self.conv_layers:
+            # conv_output = conv_layer(conv_input)  # [batch x out_channels x output_width]
+            conv_output = conv_layer.forward(conv_input)  # [batch x out_channels x output_width]
+
+            # relu
+            conv_output = conv_output.relu()
+
+            # max-over-time pooling
+            pooled_output = minitorch.nn.max(conv_output, 2)  # [batch x out_channels]
+            conv_results.append(pooled_output)
+
+        conv_results = conv_results[0] + conv_results[1] + conv_results[2]
+        conv_results = conv_results.view(conv_results.shape[0], conv_results.shape[1])
+        fc_output = self.fc(conv_results)  # [batch x num_classes]
+        if self.training: # disable dropout during eval
+            fc_output = minitorch.nn.dropout(fc_output, self.dropout_rate)
+        fc_output = fc_output.sigmoid()
+
+        return fc_output
 
 # Evaluation helper methods
 def get_predictions_array(y_true, model_output):
@@ -124,7 +160,7 @@ class SentenceSentimentTrain:
         data_train,
         learning_rate,
         batch_size=10,
-        max_epochs=500,
+        max_epochs=30,
         data_val=None,
         log_fn=default_log_fn,
     ):
