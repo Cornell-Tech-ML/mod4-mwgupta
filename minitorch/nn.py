@@ -81,7 +81,8 @@ class Max(Function):
                 input, int(dim.item())
             )
         else:
-            input = input.contiguous().view(operators.prod(input.shape))
+            new_shape = int(operators.prod(input.shape))
+            input = input.contiguous().view(new_shape)
             return FastOps.reduce(operators.max, start=float("-inf"))(input, 0)
 
     @staticmethod
